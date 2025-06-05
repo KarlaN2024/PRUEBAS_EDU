@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Simple Calculator</title>
-    <!-- Google Font for a friendly look -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet" />
     <style>
       :root {
@@ -68,7 +67,7 @@
       }
 
       button:active {
-        transform: scale(0.97);
+        transform: scale(0.96);
       }
 
       .operator {
@@ -89,6 +88,10 @@
       .number {
         background: #f1f5f9;
         color: #0f172a;
+      }
+
+      .invisible {
+        visibility: hidden;
       }
     </style>
   </head>
@@ -123,22 +126,18 @@
         <!-- Row 5 -->
         <button class="number" style="grid-column: span 2;">0</button>
         <button class="number">.</button>
-        <!-- empty placeholder to fill the grid -->
         <button class="number invisible" disabled></button>
       </div>
     </div>
 
     <script>
-      // Grab relevant elements
       const display = document.getElementById("display");
       const keys = document.querySelector(".keys");
 
-      // Calculator state
       let firstValue = null;
       let operator = null;
       let waitingForSecondValue = false;
 
-      // Helper to perform calculations
       const calculate = {
         add: (a, b) => a + b,
         subtract: (a, b) => a - b,
@@ -146,7 +145,6 @@
         divide: (a, b) => a / b,
       };
 
-      // Reset calculator
       function clearDisplay() {
         firstValue = null;
         operator = null;
@@ -154,7 +152,6 @@
         display.textContent = "0";
       }
 
-      // Handle button clicks
       keys.addEventListener("click", (e) => {
         if (!e.target.matches("button") || e.target.disabled) return;
 
@@ -162,7 +159,6 @@
         const content = button.textContent;
         const action = button.dataset.action;
 
-        // Number or decimal pressed
         if (!action) {
           if (waitingForSecondValue) {
             display.textContent = content;
@@ -174,17 +170,15 @@
           return;
         }
 
-        // Clear
         if (action === "clear") {
           clearDisplay();
           return;
         }
 
-        // Operator
         if (["add", "subtract", "multiply", "divide"].includes(action)) {
           if (firstValue === null) {
             firstValue = parseFloat(display.textContent);
-          } else if (operator) {
+          } else if (operator && !waitingForSecondValue) {
             const result = calculate[operator](firstValue, parseFloat(display.textContent));
             display.textContent = String(result);
             firstValue = result;
@@ -194,7 +188,6 @@
           return;
         }
 
-        // Equal
         if (action === "equal") {
           if (operator && !waitingForSecondValue) {
             const secondValue = parseFloat(display.textContent);
@@ -208,5 +201,3 @@
     </script>
   </body>
 </html>
-
-
