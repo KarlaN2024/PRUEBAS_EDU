@@ -21,24 +21,23 @@
         font-family: "Inter", sans-serif;
       }
 
+      /* Quitamos altura mínima para que el fondo se ajuste al contenido */
       body {
         background: var(--bg);
         display: flex;
         justify-content: center;
         align-items: flex-start;
-        min-height: 100vh; /* asegura que haya algo de espacio en pantallas altas */
-        height: auto;      /* deja que el contenido defina la altura real */
         margin: 0;
         padding: 1rem;
       }
 
-      /* Contenedor general – ahora en fila */
+      /* Contenedor general – fila flexible */
       .tools {
         display: flex;
         gap: 1.5rem;
         flex-wrap: wrap; /* En pantallas pequeñas se apilan */
         width: 100%;
-        max-width: 1000px; /* Mayor ancho para permitir dos paneles lado a lado */
+        max-width: 1000px;
       }
 
       /* ───── CALCULADORA ───── */
@@ -81,29 +80,11 @@
         transform: scale(0.96);
       }
 
-      .operator {
-        background: var(--primary);
-        color: #fff;
-      }
-
-      .clear {
-        background: var(--danger);
-        color: #fff;
-      }
-
-      .equal {
-        background: var(--success);
-        color: #fff;
-      }
-
-      .number {
-        background: #f1f5f9;
-        color: #0f172a;
-      }
-
-      .invisible {
-        visibility: hidden;
-      }
+      .operator { background: var(--primary); color: #fff; }
+      .clear    { background: var(--danger);  color: #fff; }
+      .equal    { background: var(--success); color: #fff; }
+      .number   { background: #f1f5f9; color: #0f172a; }
+      .invisible{ visibility: hidden; }
 
       /* ───── NOTEPAD ───── */
       .notepad {
@@ -114,13 +95,10 @@
         display: flex;
         flex-direction: column;
         gap: 0.75rem;
-        flex: 1 1 320px; /* crece para ocupar el espacio restante */
+        flex: 1 1 320px;
       }
 
-      .notepad label {
-        font-weight: 600;
-      }
-
+      .notepad label   { font-weight: 600; }
       .notepad textarea {
         flex: 1;
         resize: vertical;
@@ -131,7 +109,6 @@
         font-size: 1rem;
         background: #f8fafc;
       }
-
       .notepad button {
         align-self: flex-end;
         background: var(--danger);
@@ -147,31 +124,22 @@
       <div class="calculator">
         <div id="display" class="display">0</div>
         <div class="keys">
-          <!-- Row 1 -->
           <button class="clear" data-action="clear">C</button>
           <button class="operator" data-action="divide">÷</button>
           <button class="operator" data-action="multiply">×</button>
           <button class="operator" data-action="subtract">−</button>
-
-          <!-- Row 2 -->
           <button class="number">7</button>
           <button class="number">8</button>
           <button class="number">9</button>
           <button class="operator" data-action="add">+</button>
-
-          <!-- Row 3 -->
           <button class="number">4</button>
           <button class="number">5</button>
           <button class="number">6</button>
           <button class="number invisible" disabled></button>
-
-          <!-- Row 4 -->
           <button class="number">1</button>
           <button class="number">2</button>
           <button class="number">3</button>
           <button class="equal" data-action="equal">=</button>
-
-          <!-- Row 5 -->
           <button class="number" style="grid-column: span 2;">0</button>
           <button class="number">.</button>
           <button class="number invisible" disabled></button>
@@ -187,82 +155,32 @@
     </div>
 
     <script>
-      // ───────── CALCULADORA ─────────
+      /* ───── CALCULADORA ───── */
       const display = document.getElementById("display");
       const keys = document.querySelector(".keys");
-
-      let firstValue = null;
-      let operator = null;
-      let waitingForSecondValue = false;
-
-      const calculate = {
-        add: (a, b) => a + b,
-        subtract: (a, b) => a - b,
-        multiply: (a, b) => a * b,
-        divide: (a, b) => a / b,
-      };
-
-      function clearDisplay() {
-        firstValue = null;
-        operator = null;
-        waitingForSecondValue = false;
-        display.textContent = "0";
-      }
-
-      keys.addEventListener("click", (e) => {
-        if (!e.target.matches("button") || e.target.disabled) return;
-
-        const button = e.target;
-        const content = button.textContent;
-        const action = button.dataset.action;
-
-        if (!action) {
-          if (waitingForSecondValue) {
-            display.textContent = content;
-            waitingForSecondValue = false;
-          } else {
-            display.textContent =
-              display.textContent === "0" ? content : display.textContent + content;
-          }
-          return;
+      let firstValue = null, operator = null, waiting = false;
+      const calc = { add:(a,b)=>a+b, subtract:(a,b)=>a-b, multiply:(a,b)=>a*b, divide:(a,b)=>a/b };
+      keys.addEventListener("click", e=>{
+        if(!e.target.matches("button")||e.target.disabled) return;
+        const {textContent:txt, dataset:{action}} = e.target;
+        if(!action){
+          display.textContent = waiting ? txt : (display.textContent==="0"?txt:display.textContent+txt);
+          waiting = false; return;
         }
-
-        if (action === "clear") {
-          clearDisplay();
-          return;
+        if(action==="clear"){ firstValue=null; operator=null; waiting=false; display.textContent="0"; return; }
+        if(["add","subtract","multiply","divide"].includes(action)){
+          if(firstValue===null){ firstValue=parseFloat(display.textContent); }
+          else if(operator&&!waiting){ firstValue = calc[operator](firstValue, parseFloat(display.textContent)); display.textContent=String(firstValue); }
+          operator=action; waiting=true; return;
         }
-
-        if (["add", "subtract", "multiply", "divide"].includes(action)) {
-          if (firstValue === null) {
-            firstValue = parseFloat(display.textContent);
-          } else if (operator && !waitingForSecondValue) {
-            const result = calculate[operator](firstValue, parseFloat(display.textContent));
-            display.textContent = String(result);
-            firstValue = result;
-          }
-          operator = action;
-          waitingForSecondValue = true;
-          return;
-        }
-
-        if (action === "equal") {
-          if (operator && !waitingForSecondValue) {
-            const secondValue = parseFloat(display.textContent);
-            const result = calculate[operator](firstValue, secondValue);
-            display.textContent = String(result);
-            firstValue = result;
-            operator = null;
-          }
+        if(action==="equal" && operator && !waiting){
+          const result = calc[operator](firstValue, parseFloat(display.textContent));
+          display.textContent=String(result); firstValue=result; operator=null;
         }
       });
-
-      // ───────── NOTEPAD ─────────
-      const notesArea = document.getElementById("notes");
-      const clearBtn = document.getElementById("clear-notes");
-
-      clearBtn.addEventListener("click", () => {
-        notesArea.value = "";
-        notesArea.focus();
+      /* ───── NOTEPAD ───── */
+      document.getElementById("clear-notes").addEventListener("click",()=>{
+        const ta=document.getElementById("notes"); ta.value=""; ta.focus();
       });
     </script>
   </body>
