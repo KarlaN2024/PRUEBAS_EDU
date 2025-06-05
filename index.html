@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Simple Calculator</title>
+    <title>Calculadora + Bloc de notas</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet" />
     <style>
       :root {
@@ -25,12 +25,22 @@
         background: var(--bg);
         display: flex;
         justify-content: center;
-        align-items: center;
+        align-items: flex-start;
         height: 100vh;
         margin: 0;
         padding: 1rem;
       }
 
+      /* Contenedor general – ahora en fila */
+      .tools {
+        display: flex;
+        gap: 1.5rem;
+        flex-wrap: wrap; /* En pantallas pequeñas se apilan */
+        width: 100%;
+        max-width: 1000px; /* Mayor ancho para permitir dos paneles lado a lado */
+      }
+
+      /* ───── CALCULADORA ───── */
       .calculator {
         background: var(--panel);
         border-radius: var(--radius);
@@ -93,44 +103,90 @@
       .invisible {
         visibility: hidden;
       }
+
+      /* ───── NOTEPAD ───── */
+      .notepad {
+        background: var(--panel);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        flex: 1 1 320px; /* crece para ocupar el espacio restante */
+      }
+
+      .notepad label {
+        font-weight: 600;
+      }
+
+      .notepad textarea {
+        flex: 1;
+        resize: vertical;
+        min-height: 220px;
+        border: 1px solid #cbd5e1;
+        border-radius: var(--radius);
+        padding: 0.75rem;
+        font-size: 1rem;
+        background: #f8fafc;
+      }
+
+      .notepad button {
+        align-self: flex-end;
+        background: var(--danger);
+        color: #fff;
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+      }
     </style>
   </head>
   <body>
-    <div class="calculator">
-      <div id="display" class="display">0</div>
-      <div class="keys">
-        <!-- Row 1 -->
-        <button class="clear" data-action="clear">C</button>
-        <button class="operator" data-action="divide">÷</button>
-        <button class="operator" data-action="multiply">×</button>
-        <button class="operator" data-action="subtract">−</button>
+    <div class="tools">
+      <!-- CALCULADORA -->
+      <div class="calculator">
+        <div id="display" class="display">0</div>
+        <div class="keys">
+          <!-- Row 1 -->
+          <button class="clear" data-action="clear">C</button>
+          <button class="operator" data-action="divide">÷</button>
+          <button class="operator" data-action="multiply">×</button>
+          <button class="operator" data-action="subtract">−</button>
 
-        <!-- Row 2 -->
-        <button class="number">7</button>
-        <button class="number">8</button>
-        <button class="number">9</button>
-        <button class="operator" data-action="add">+</button>
+          <!-- Row 2 -->
+          <button class="number">7</button>
+          <button class="number">8</button>
+          <button class="number">9</button>
+          <button class="operator" data-action="add">+</button>
 
-        <!-- Row 3 -->
-        <button class="number">4</button>
-        <button class="number">5</button>
-        <button class="number">6</button>
-        <button class="number invisible" disabled></button>
+          <!-- Row 3 -->
+          <button class="number">4</button>
+          <button class="number">5</button>
+          <button class="number">6</button>
+          <button class="number invisible" disabled></button>
 
-        <!-- Row 4 -->
-        <button class="number">1</button>
-        <button class="number">2</button>
-        <button class="number">3</button>
-        <button class="equal" data-action="equal">=</button>
+          <!-- Row 4 -->
+          <button class="number">1</button>
+          <button class="number">2</button>
+          <button class="number">3</button>
+          <button class="equal" data-action="equal">=</button>
 
-        <!-- Row 5 -->
-        <button class="number" style="grid-column: span 2;">0</button>
-        <button class="number">.</button>
-        <button class="number invisible" disabled></button>
+          <!-- Row 5 -->
+          <button class="number" style="grid-column: span 2;">0</button>
+          <button class="number">.</button>
+          <button class="number invisible" disabled></button>
+        </div>
+      </div>
+
+      <!-- NOTEPAD -->
+      <div class="notepad">
+        <label for="notes">Bloc de notas</label>
+        <textarea id="notes" placeholder="Escriba sus ideas aquí..."></textarea>
+        <button id="clear-notes">Limpiar</button>
       </div>
     </div>
 
     <script>
+      // ───────── CALCULADORA ─────────
       const display = document.getElementById("display");
       const keys = document.querySelector(".keys");
 
@@ -197,6 +253,15 @@
             operator = null;
           }
         }
+      });
+
+      // ───────── NOTEPAD ─────────
+      const notesArea = document.getElementById("notes");
+      const clearBtn = document.getElementById("clear-notes");
+
+      clearBtn.addEventListener("click", () => {
+        notesArea.value = "";
+        notesArea.focus();
       });
     </script>
   </body>
