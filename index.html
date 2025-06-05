@@ -26,7 +26,8 @@
         display: flex;
         justify-content: center;
         align-items: flex-start;
-        height: 100vh;
+        min-height: 100vh; /* asegura que haya algo de espacio en pantallas altas */
+        height: auto;      /* deja que el contenido defina la altura real */
         margin: 0;
         padding: 1rem;
       }
